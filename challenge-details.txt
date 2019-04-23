@@ -1,0 +1,34 @@
+UI : Lightning
+
+Setup Case to Case lookup. 
+
+Setup a custom object named “Cool_Info__c” which will have a lookup relationship to Contact.
+
+On Contact Object a User_Id__c field should be created which is an external id field.  
+Setup a custom object named “Address__c” which will have a lookup relationship to Contact. 
+Address__c fields :
+    • All address fields from contact object
+    • Lookup to contact 
+    • Occured_On__c date time
+
+A platform event should be created which has information about the Contact External Id and the address fields, on its consumption it should create an Address__c record, fill in all fields and set the latest Address (can be checked by Occured_On__c on the related Address records of the contact and those that are coming in from the platform event). 
+
+When Contact Address has been updated it should automatically request the “Geocoding Data” from the google api via rest. 
+
+User wants a button on Contact Object which will allow him to receive Geocoding Data of the user address and save it on the record.
+
+When Geocoding Data has been retrieved a case should be created with Subject “Check Geocoding Data” 
+
+On Case creation a random guid should be generated and set on the External_Id__c field on the case.
+
+When case has been closed a platform event should be published which contains the external id of the case, and on the trigger of the event it should create  a new case with subject “I am done” linked to the Case which was closed. 
+
+To be used :
+    • Flow
+    • Triggers
+    • Async method
+    • Platform event 
+    • Rest
+
+To be used apis :
+ - google api (https://developers.google.com/maps/documentation/geocoding/intro)
