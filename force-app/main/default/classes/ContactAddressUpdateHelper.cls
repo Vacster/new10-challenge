@@ -1,16 +1,17 @@
 public with sharing class ContactAddressUpdateHelper {
-    
-    public static void updateContacts(List<Address_Registration__e> addresses) {
-        Map<String, List<Address_Registration__e>> addressMap = 
-            ContactAddressUpdateHelper.generateAddressMap(addresses);
 
-        List<Contact> contacts = 
-            ContactAddressUpdateHelper.getContacts(addressMap.keySet());
+    /**
+     * Updates the contacts to their latest address
+     * @param  addresses List of incoming messages from Platform Event
+     */
+    @future
+    public static void updateContacts(Set<Id> contactIds) {
+        List<Contact> contacts = ContactAddressUpdateHelper.getContacts(contactIds);
 
         List<Contact> updatedContacts = new List<Contact>();
         for (Contact currentContact : contacts) {
-            Address_Registration__e address = 
-                getMostRecentAddress(currentContact, addressMap.get(currentContact.User_Id__c));
+            Address__c address = 
+                getMostRecentAddress(currentContact);
 
             if (address != null) {
                 changeAddress(currentContact, address);
@@ -23,7 +24,12 @@ public with sharing class ContactAddressUpdateHelper {
         }
     }
 
-    private static void changeAddress(Contact currentContact, Address_Registration__e address) {
+    /**
+     * Updates the contact's address to the one in the Address object but doesn't commit
+     * @param  currentContact The contact which will be updated
+     * @param  address        The address with which to update the currentContact
+     */
+    private static void changeAddress(Contact currentContact, Address__c address) {
         currentContact.MailingStreet = address.Mailing_Street__c;
         currentContact.MailingCity = address.Mailing_City__c;
         currentContact.MailingState = address.Mailing_State_Province__c;
@@ -36,21 +42,25 @@ public with sharing class ContactAddressUpdateHelper {
         currentContact.OtherPostalCode = address.Other_Zip_Postal_Code__c;
         currentContact.OtherCountry = address.Other_Country__c;
 
-        currentContact.Occurred_On__c = address.CreatedDate;
+        currentContact.Occurred_On__c = address.Occurred_On__c;
     }
 
-    private static Address_Registration__e getMostRecentAddress(
-        Contact currentContact, List<Address_Registration__e> addresses) {
+    /**
+     * Returns the most recent address for a specific Contact
+     * @param currentContact    The Contact with its addresses from which to compare
+     * @return  The latest Address, or null if none are newer than the Contact's current one
+     */
+    private static Address__c getMostRecentAddress(Contact currentContact) {
 
-        Address_Registration__e mostRecentAddress;
+        Address__c mostRecentAddress;
 
-        for(Address_Registration__e address : addresses) {
+        for(Address__c address : currentContact.Addresses__r) {
             if (mostRecentAddress != null) {
-                if (address.CreatedDate > mostRecentAddress.CreatedDate) {
+                if (address.Occurred_On__c > mostRecentAddress.Occurred_On__c) {
                     mostRecentAddress = address;
                 }
             } else if (currentContact.Occurred_On__c == null || 
-                        address.CreatedDate > currentContact.Occurred_On__c) {
+                        address.Occurred_On__c > currentContact.Occurred_On__c) {
                 mostRecentAddress = address;
             }
         }
@@ -58,31 +68,25 @@ public with sharing class ContactAddressUpdateHelper {
         return mostRecentAddress;
     }
 
-    private static List<Contact> getContacts(Set<String> externalIds) {
-        List<Contact> contacts = [SELECT Id, User_Id__c, Occurred_On__c,
-                                        MailingStreet, MailingCity, MailingState, 
-                                        MailingPostalCode, MailingCountry, 
-                                        OtherStreet, OtherCity, OtherState, 
-                                        OtherPostalCode, OtherCountry 
+    /**
+     * Returns a list of Contacts with their Addresses based on the set of External Ids from 
+     * the incoming messages
+     * @param   Contact Ids which to query from 
+     * @return  List of unique contacts with their addresses and Occurred On fields 
+     */
+    private static List<Contact> getContacts(Set<Id> contactIds) {
+        List<Contact> contacts = [SELECT Id, Occurred_On__c,
+                                        (SELECT Id, Occurred_On__c, Contact__c,
+                                                Mailing_Street__c, Mailing_City__c, 
+                                                Mailing_State_Province__c, Mailing_Country__c,
+                                                Mailing_Zip_Postal_Code__c, Other_Street__c,
+                                                Other_City__c, Other_State_Province__c, 
+                                                Other_Zip_Postal_Code__c, Other_Country__c
+                                        FROM Addresses__r)
                                     FROM Contact 
-                                    WHERE User_Id__c IN :externalIds];
+                                    WHERE Id IN :contactIds];
 
         return contacts;
     }
 
-    private static Map<String, List<Address_Registration__e>> generateAddressMap(
-        List<Address_Registration__e> addresses) {
-
-        Map<String, List<Address_Registration__e>> addressMap = 
-            new Map<String, List<Address_Registration__e>>();
-
-        for (Address_Registration__e address : addresses) {
-            if (!addressMap.containsKey(address.User_Id__c)) {
-                addressMap.put(address.User_Id__c, new List<Address_Registration__e>());
-            }
-            addressMap.get(address.User_Id__c).add(address);
-        }
-
-        return addressMap;
-    }
 }
