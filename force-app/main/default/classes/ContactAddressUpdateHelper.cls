@@ -6,7 +6,7 @@ public with sharing class ContactAddressUpdateHelper {
      */
     @future
     public static void updateContacts(Set<Id> contactIds) {
-        List<Contact> contacts = ContactAddressUpdateHelper.getContacts(contactIds);
+        List<Contact> contacts = getContacts(contactIds);
 
         List<Contact> updatedContacts = new List<Contact>();
         for (Contact currentContact : contacts) {
