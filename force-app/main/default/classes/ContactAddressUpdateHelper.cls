@@ -1,3 +1,6 @@
+/**
+ * A helper class to update the contact to their latest Address.
+ */
 public with sharing class ContactAddressUpdateHelper {
 
     /**
@@ -10,8 +13,7 @@ public with sharing class ContactAddressUpdateHelper {
 
         List<Contact> updatedContacts = new List<Contact>();
         for (Contact currentContact : contacts) {
-            Address__c address = 
-                getMostRecentAddress(currentContact);
+            Address__c address = getMostRecentAddress(currentContact);
 
             if (address != null) {
                 changeAddress(currentContact, address);

@@ -1,8 +1,20 @@
+/**
+ * Helper that updates the Contact's Geolocation values based on their address.
+ * It works with Google's Geocoding API.
+ */
 public with sharing class ContactGeolocationHelper {
 
-    private static final string BASE_URI = 'https://maps.googleapis.com/maps/api/geocode/json?';
+    /**
+     * These variables should be stored elsewhere in a Real Environment 
+     * but for the purpose of this challenge they do fine as static strings.
+     */
     private static final String API_KEY = 'AIzaSyAsM4Y5PY5-OGI_C8HCLRTwBQKUqUuNy74';
-
+    private static final string BASE_URI = 'https://maps.googleapis.com/maps/api/geocode/json?';
+    
+    /**
+     * Future method that updates a contact's Geolocation values based on their address
+     * @param  contactId The Id of the contact to update
+     */
     @future(callout=true)
     private static void updateGeolocation(Id contactId) {
         Contact currentContact = 
@@ -22,6 +34,11 @@ public with sharing class ContactGeolocationHelper {
         }
     }
 
+    /**
+     * Update's the contact's MailingGeolocation if it has an MailingAddress
+     * @param  currentContact The contact to update their MailingGeolocation
+     * @return                returns true if the contact was updated, false otherwise
+     */
     private static Boolean getMailingGeolocation(Contact currentContact) {
 
         String mailingAddress = '';
@@ -48,6 +65,11 @@ public with sharing class ContactGeolocationHelper {
             return false;
         }
 
+        /**
+         * Create and send the callout.
+         * In a real environment this would be more standarized and probably use a helper class
+         * with error handling and common debugging/reporting methods.
+         */
         Http h = new Http();
         HttpRequest req = new HttpRequest();
 
@@ -57,6 +79,7 @@ public with sharing class ContactGeolocationHelper {
 
         HttpResponse res = h.send(req);
         if (res.getStatusCode() == 200) {
+            //Deserializes the response into an easily readable Apex class
             GoogleGeocodingContainer container = GoogleGeocodingContainer.parse(res.getBody());
 
             currentContact.MailingLatitude = container.results.get(0).geometry.location.lat;
@@ -66,6 +89,11 @@ public with sharing class ContactGeolocationHelper {
         return false;
     }
 
+    /**
+     * Update's the contact's OtherGeolocation if it has an OtherAddress
+     * @param  currentContact The contact to update their OtherGeolocation
+     * @return                returns true if the contact was updated, false otherwise
+     */
     private static Boolean getOtherGeolocation(Contact currentContact) {
 
         String otherAddress = '';
@@ -92,6 +120,11 @@ public with sharing class ContactGeolocationHelper {
             return false;
         }
 
+        /**
+         * Create and send the callout.
+         * In a real environment this would be more standarized and probably use a helper class
+         * with error handling and common debugging/reporting methods.
+         */
         Http h = new Http();
         HttpRequest req = new HttpRequest();
 
@@ -101,6 +134,7 @@ public with sharing class ContactGeolocationHelper {
 
         HttpResponse res = h.send(req);
         if (res.getStatusCode() == 200) {
+            //Deserializes the response into an easily readable Apex class
             GoogleGeocodingContainer container = GoogleGeocodingContainer.parse(res.getBody());
 
             currentContact.OtherLatitude = container.results.get(0).geometry.location.lat;
@@ -110,6 +144,10 @@ public with sharing class ContactGeolocationHelper {
         return false;
     }
 
+    /**
+     * Invocable Method that calls a future method to update each contact's geolocation
+     * @param  contactIds The Id of the contacts to update
+     */
     @InvocableMethod(label='Update Geolocations')
     public static void updateContactsGeolocations(List<Id> contactIds) {
         for (Id contactId : contactIds) {

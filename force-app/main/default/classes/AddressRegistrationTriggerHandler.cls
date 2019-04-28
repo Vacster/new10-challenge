@@ -1,3 +1,6 @@
+/**
+ * The handler for the Address Registration Platform Event trigger.
+ */
 public with sharing class AddressRegistrationTriggerHandler {
     
     /**

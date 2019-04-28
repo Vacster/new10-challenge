@@ -1,3 +1,8 @@
+/**
+ * A class representing Google's Geocoding Api Response.
+ * The request response can be directly deserialized into this class.
+ * Created with Json2Apex, by Superfell & Metadaddy.
+ */
 public class GoogleGeocodingContainer {
 
 	public class Address_components {
@@ -33,7 +38,11 @@ public class GoogleGeocodingContainer {
 		public Double lng;
 	}
 
-	
+	/**
+	 * Deserializes the Google's Geocoding API in JSON format.
+	 * @param  json The JSON to deserialize into the class.
+	 * @return      A GoogleGeocodingContainer object which comes from the deserialized JSON. 
+	 */
 	public static GoogleGeocodingContainer parse(String json) {
 		return (GoogleGeocodingContainer) System.JSON.deserialize(json, GoogleGeocodingContainer.class);
 	}
