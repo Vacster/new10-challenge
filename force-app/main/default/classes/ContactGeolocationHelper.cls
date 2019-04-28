@@ -38,6 +38,7 @@ public with sharing class ContactGeolocationHelper {
         
         if (updatedContacts.size() > 0) {
             update updatedContacts;
+            createFollowUpCases(updatedContacts);
         }
     }
 
@@ -149,6 +150,24 @@ public with sharing class ContactGeolocationHelper {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Creates a Case for each updated Contact with the subject 'Check Geocoding Data'.
+     * @param  contacts The list of updated Contacts to create cases from
+     */
+    private static void createFollowUpCases(List<Contact> contacts) {
+        List<Case> cases = new List<Case>();
+        for (Contact currentContact : contacts) {
+            Case c = new Case(
+                Subject = 'Check Geocoding Data',
+                ContactId = currentContact.Id
+            );
+
+            cases.add(c);
+        }
+
+        insert cases;
     }
 
     /**
