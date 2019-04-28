@@ -4,6 +4,13 @@
 public with sharing class ContactTriggerHandler {
     
     /**
+     * Required so the Geolocation doesn't update recursively
+     * when a Contact's geolocation is updated and thus the 
+     * Contact itself is updated
+     */
+    private static Boolean isGeolocationUpdated = false;
+
+    /**
      * Called on Contact's after update trigger
      * @param  oldContacts The Trigger.oldMap value from the Trigger
      * @param  newContacts The Trigger.newMap value from the Trigger
@@ -16,7 +23,11 @@ public with sharing class ContactTriggerHandler {
                 contactIds.add(newContact.Id);
             }
         }
-        ContactGeolocationHelper.updateContactsGeolocations(contactIds);
+        
+        if (contactIds.size() > 0 && !isGeolocationUpdated) {
+            ContactGeolocationHelper.updateContactsGeolocations(contactIds);
+            isGeolocationUpdated = true;
+        }
     }
 
 }

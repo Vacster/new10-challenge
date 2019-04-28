@@ -13,24 +13,31 @@ public with sharing class ContactGeolocationHelper {
     
     /**
      * Future method that updates a contact's Geolocation values based on their address
-     * @param  contactId The Id of the contact to update
+     * @param  contactIds The list of Ids of the Contacts to query
      */
     @future(callout=true)
-    private static void updateGeolocation(Id contactId) {
-        Contact currentContact = 
+    private static void updateGeolocation(List<Id> contactIds) {
+        List<Contact> contacts = 
             [SELECT Id, MailingStreet, MailingCity, 
                     MailingState, MailingCountry,
                     MailingPostalCode, OtherStreet,
                     OtherCity, OtherState, 
                     OtherPostalCode, OtherCountry
             FROM Contact
-            WHERE Id = :contactId];
+            WHERE Id IN :contactIds];
 
-        Boolean updatedMailingAddress = getMailingGeolocation(currentContact);
-        Boolean updatedOtherAddress = getOtherGeolocation(currentContact);
+        List<Contact> updatedContacts = new List<Contact>();
+        for (Contact currentContact : contacts) {
+            Boolean updatedMailingAddress = getMailingGeolocation(currentContact);
+            Boolean updatedOtherAddress = getOtherGeolocation(currentContact);
 
-        if (updatedMailingAddress || updatedOtherAddress) {
-            update currentContact;
+            if (updatedMailingAddress || updatedOtherAddress) {
+                updatedContacts.add(currentContact);
+            }
+        }
+        
+        if (updatedContacts.size() > 0) {
+            update updatedContacts;
         }
     }
 
@@ -150,8 +157,6 @@ public with sharing class ContactGeolocationHelper {
      */
     @InvocableMethod(label='Update Geolocations')
     public static void updateContactsGeolocations(List<Id> contactIds) {
-        for (Id contactId : contactIds) {
-            updateGeolocation(contactId);
-        }
+        updateGeolocation(contactIds);
     }
 }
