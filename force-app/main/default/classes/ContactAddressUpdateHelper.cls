@@ -5,9 +5,8 @@ public with sharing class ContactAddressUpdateHelper {
 
     /**
      * Updates the contacts to their latest address
-     * @param  addresses List of incoming messages from Platform Event
+     * @param  contactIds List of Contacts to update
      */
-    @future
     public static void updateContacts(Set<Id> contactIds) {
         List<Contact> contacts = getContacts(contactIds);
 
