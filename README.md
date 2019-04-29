@@ -11,8 +11,7 @@ For code style, Google's Java Style Guide was followed: https://google.github.io
 - Everything done in the project has a reason. The more odd-looking parts are usually commented and I'm open to *any* question in terms of why I did something a certain way.
 - Every Class and Method has been commented in a realistic way.
 - The challenge was developed exclusively with SFDX and Visual Studio Code except for declarative parts like Flow creation and Platform Events declarations.
-- I chose Google's Java Style Guide for this challenge but in a real workplace the Style of the workplace would be followed.
-- Class names and more explicit (longer) than normal, but again this was done to follow the most general approach possible in terms of style.
+- Class names are more explicit (longer) than normal, but again this was done to follow the most general approach possible in terms of style.
 - Every Trigger has a Handler similar to how it would be developed in a real scenario but they are 'incomplete' in the sense that not every event is being handled in the Trigger/Handler (even if only to do a System.debug print) like it would normally be done when following a Trigger framework.
 - Error handling and reporting, especially when it comes to Exceptions is done to a minimum or not at all besides Apex Tests as I considered them outside the scope of the project, especially due to time constraints. I also consider an uncaught exception that sends an email could be better than a caught, unreported one.
 
