@@ -8,7 +8,7 @@ public with sharing class ContactGeolocationHelper {
      * These variables should be stored elsewhere in a Real Environment 
      * but for the purpose of this challenge they do fine as static strings.
      */
-    private static final String API_KEY = 'AIzaSyAsM4Y5PY5-OGI_C8HCLRTwBQKUqUuNy74';
+    private static final String API_KEY = 'INSERT_KEY_HERE';
     private static final string BASE_URI = 'https://maps.googleapis.com/maps/api/geocode/json?';
     
     /**
